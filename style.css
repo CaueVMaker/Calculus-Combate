@@ -1,0 +1,256 @@
+body {
+    margin: 0px;
+    height: 100vh;
+    background-image: url(images/background_screen_initial.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    perspective: 1000px;
+    /* overflow: auto; 
+    display: flex;
+    flex-direction: column; */
+}
+
+main {
+    transition: transform 0.1s ease-out;
+    transform-style: preserve-3d;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    min-height: min-content; /* Garante que o main não cresça indefinidamente */
+}
+
+.logo_caixa {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px; /* Reduzi a margem superior */
+}
+
+.logo_nome {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: auto;
+    max-width: 60%;
+}
+
+.lore-box {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffcc00;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 500px;
+    height: 200px; /* Altura fixa */
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+    position: relative;
+    overflow: hidden; /* Mantém o border-radius mesmo com scroll */
+}
+
+.lore-content {
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; /* Barra de rolagem vertical quando necessário */
+    padding: 10px;
+    padding-right: 15px; /* Espaço para a barra de rolagem */
+    box-sizing: border-box;
+}
+
+/* Estilizando a barra de rolagem */
+.lore-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.lore-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.lore-content::-webkit-scrollbar-thumb {
+    background-color: #ffcc00;
+    border-radius: 10px;
+}
+
+.lore-content p {
+    margin: 0;
+    padding: 0;
+}
+
+.botao_caixa {
+    display: flex;
+    justify-content: center;
+    margin: 0px 0;
+    position: relative;
+    z-index: 2;
+    width: 80%;
+}
+
+.botao_start {
+    display: flex;
+    justify-content: center;
+    transition: 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(255, 204, 0, 0.7));
+}
+
+.botao_start:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(255, 204, 0, 0.9));
+}
+
+/* Efeito de máquina de escrever */
+.typing-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.2rem;
+    background-color: #ffcc00;
+    animation: blink 0.7s infinite;
+    vertical-align: middle;
+    margin-left: 3px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Folhas animadas (mantido do original) */
+.folhas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.folha {
+    position: absolute;
+    width: 32px;
+    height: auto;
+    animation: flutuar linear infinite;
+    opacity: 0.8;
+}
+
+.folha1 {
+    left: 10%;
+    animation-duration: 12s;
+    animation-delay: 0s;
+}
+
+.folha2 {
+    left: 50%;
+    animation-duration: 16s;
+    animation-delay: 3s;
+}
+
+.folha3 {
+    left: 80%;
+    animation-duration: 14s;
+    animation-delay: 1.5s;
+}
+
+.folha4 {
+    left: 80%;
+    animation-duration: 14s;
+    animation-delay: 1.5s;
+}
+
+.folha5 {
+    left: 80%;
+    animation-duration: 14s;
+    animation-delay: 1.5s;
+}
+
+.folha6 {
+    left: 80%;
+    animation-duration: 14s;
+    animation-delay: 1.5s;
+}
+
+@keyframes flutuar {
+    0% {
+        top: -10%;
+        transform: rotate(0deg) translateX(0px);
+    }
+    50% {
+        transform: rotate(15deg) translateX(10px);
+    }
+    100% {
+        top: 110%;
+        transform: rotate(-15deg) translateX(-10px);
+    }
+}
+
+#config-button {
+    position: fixed;
+    top: 10px;
+    right: 15px;
+    background-color: #ffcc00;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 32px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    user-select: none;
+}
+
+#manual-box {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    width: 300px;
+    max-width: 80vw;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #ffcc00;
+    border-radius: 10px;
+    z-index: 999;
+    font-size: 14px;
+    text-align: left;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+}
+
+#manual-box h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #ffcc00;
+    text-align: center;
+}
+
+#manual-box ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#manual-box li {
+    margin-bottom: 10px;
+}
+
+#manual-box button {
+    margin-top: 10px;
+    background-color: #ffcc00;
+    color: black;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+}

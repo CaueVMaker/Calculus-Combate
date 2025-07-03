@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Combat - Seleção de Deck</title>
+    <link rel="stylesheet" href="style_deck_selection.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kelly+Slab&display=swap');
+    </style>
+</head>
+<body>
+    <div class="folhas">
+        <img src="images/Folha.png" class="folha folha1">
+        <img src="images/Folha.png" class="folha folha2">
+        <img src="images/Folha.png" class="folha folha3">
+    </div>
+
+    <main>
+        <div class="logo_caixa">
+            <img class="logo_nome" src="images/logo_ck_1.png">
+        </div>
+
+        <h2 class="deck-title">ESCOLHA SEU DECK</h2>
+
+        <div class="deck-container">
+            <div class="deck-option" data-deck="Reino Doce">
+                <img src="images/Doce.png" alt="Deck Reino Doce">
+                <h3>Reino Doce</h3>
+                <p>Podem possui uma deliciosa e saborosa aparência, mas tomem cuidado, pois o que possuem de fofos, eles também incrivelmente aterrorizantes para quem os subestimar.</p>
+            </div>
+
+            <div class="deck-option" data-deck="Folclore">
+                <img src="images/Folclore.png" alt="Deck Criaturas Folcloricas">
+                <h3>Criaturas Folcloricas</h3>
+                <p>Suas lendas e canções podem não ser das mais assustadoras, até você descobrir que elas são verdadeiras e as abominações são mais terrivéis do que pode imaginar. </p>
+            </div>
+        </div>
+
+        <div class="botao_caixa">
+            <button class="botao_confirmar" disabled>CONFIRMAR</button>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let selectedDeck = null;
+            const deckOptions = document.querySelectorAll('.deck-option');
+            const confirmButton = document.querySelector('.botao_confirmar');
+
+            deckOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    deckOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedDeck = option.dataset.deck;
+                    confirmButton.disabled = false;
+                });
+            });
+
+            confirmButton.addEventListener('click', () => {
+                if (selectedDeck) {
+                    localStorage.setItem('selectedDeck', selectedDeck);
+                    window.location.href = 'calculus_combate_final.html';
+                }
+            });
+        });
+    </script>
+
+<audio id="bg-music" autoplay loop style="display: none;">
+  <source src="sound/game-jam-2_AyGfwnbR.wav" type="audio/wav">
+</audio>
+
+<script>
+  // Tenta tocar a música quando a página carrega
+  document.addEventListener('DOMContentLoaded', function() {
+    const music = document.getElementById('bg-music');
+    music.volume = 0.5; // Volume baixo (50%)
+    
+    // Toca a música (pode ser bloqueado em alguns navegadores)
+    music.play().catch(e => {
+      // Se falhar, tenta novamente quando o usuário clicar em qualquer lugar
+      document.addEventListener('click', function() {
+        music.play();
+      }, { once: true });
+    });
+  });
+</script>
+
+
+</body>
+</html>

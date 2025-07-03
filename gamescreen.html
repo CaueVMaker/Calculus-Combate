@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Combat</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Kelly+Slab&display=swap');
+</style>
+</head>
+<body>
+
+    <div class="folhas">
+        <img src="images/Folha.png" class="folha folha1">
+        <img src="images/folha.png" class="folha folha2">
+        <img src="images/folha.png" class="folha folha3">
+        <img src="images/folha.png" class="folha folha4">
+        <img src="images/folha.png" class="folha folha5">
+        <img src="images/folha.png" class="folha folha6">
+
+    </div>
+    <main>
+        <div class="logo_caixa">
+            <img class="logo_nome" src="images/logo_ck_1.png">
+        </div>
+
+        <div class="lore-box">
+            <div class="lore-content">
+                <p id="lore-text"></p>
+                <span id="typing-cursor" class="typing-cursor"></span>
+            </div>
+        </div>
+
+        <div class="botao_caixa">
+            <a class="botao_start" href="./deck_selection.html"><img src="images/start_botao.png"></a>    
+        </div>
+    </main>
+    
+     <script>
+    const main = document.querySelector("main");
+
+    document.addEventListener("mousemove", (e) => {
+        const { innerWidth, innerHeight } = window;
+        const x = (e.clientX / innerWidth - 0.5) * 10; // Reduzi a intensidade
+        const y = (e.clientY / innerHeight - 0.5) * 10;
+
+        main.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+    });
+    </script>
+
+    <script>
+    const lore = `E se os grandes contos de fadas, lendas antigas e mitos esquecidos fossem reais?
+    
+Em um universo muito distante, onde as leis da física são distorcidas e a própria realidade é moldada por forças além da compreensão, criaturas lendárias e seres matematicamente impossíveis coexistem.
+
+Nem mesmo os números obedecem à lógica. Variáveis ganham consciência, equações se tornam feitiços e integrais podem rasgar o tecido do espaço-tempo.
+
+Aqui, o conhecimento é poder. E o combate se resolve não com espadas, mas com mente afiada.
+
+Você foi convocado para o CALCULUS COMBAT.
+Será que você é capaz de dominar os números... ou será dominado por eles?`;
+
+    let i = 0;
+    const speed = 30; // Velocidade um pouco mais lenta
+    const loreText = document.getElementById("lore-text");
+    const cursor = document.getElementById("typing-cursor");
+
+    function typeWriter() {
+        if (i < lore.length) {
+            loreText.innerHTML += lore.charAt(i);
+            i++;
+            setTimeout(typeWriter, speed);
+        } else {
+            cursor.style.display = 'none'; // Esconde o cursor quando terminar
+        }
+    }
+
+    window.onload = function() {
+        setTimeout(typeWriter, 1000); // Pequeno delay antes de começar
+    };
+</script>
+
+<audio id="bg-music" autoplay loop style="display: none;">
+  <source src="sound/game-jam-2_AyGfwnbR.wav" type="audio/wav">
+</audio>
+
+<script>
+  // Tenta tocar a música quando a página carrega
+  document.addEventListener('DOMContentLoaded', function() {
+    const music = document.getElementById('bg-music');
+    music.volume = 0.5; // Volume baixo (50%)
+    
+    // Toca a música (pode ser bloqueado em alguns navegadores)
+    music.play().catch(e => {
+      // Se falhar, tenta novamente quando o usuário clicar em qualquer lugar
+      document.addEventListener('click', function() {
+        music.play();
+      }, { once: true });
+    });
+  });
+</script>
+
+<div id="config-button" onclick="toggleManual()">?</div>
+
+<div id="manual-box" style="display: none;">
+  <div class="manual-content">
+    <h2>Manual de Instruções</h2>
+    <ul>
+      <li>🎴 Você só pode invocar até 2 monstros e 1 mágica por turno.</li>
+      <li>💡 Não é permitido atacar no primeiro turno.</li>
+      <li>⚔️ Ataques com ATK são comparados com o ATK do oponente.</li>
+      <li>🛡️ Ataques com DEF são comparados com a DEF do oponente.</li>
+      <li>🔥 Cartas Mágicas fortalecem todos os seus monstros em +5 ATK.</li>
+      <li>💥 Você pode atacar diretamente se o campo do oponente estiver vazio.</li>
+      <li>🔁 Máximo de 5 cartas na mão — excedentes serão descartadas.</li>
+    </ul>
+    <button onclick="toggleManual()">Fechar</button>
+  </div>
+</div>
+<script>
+  function toggleManual() {
+    const box = document.getElementById("manual-box");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  }
+</script>
+</body>
+</html>

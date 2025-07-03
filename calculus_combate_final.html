@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CALCULUS COMBAT</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kelly+Slab&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('images/background_screen_in_game.png');
+      background-size: cover;
+      overflow-x: hidden;
+    }
+
+    .game-board {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mesa {
+      background-image: url('images/mesa_2_retangulo.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      width: 80%;
+      height: 90%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .hand {
+      display: flex;
+      gap: 5px;
+      padding: 5px;
+      overflow-x: auto;
+      position: absolute;
+    }
+
+    .ia-hand {
+      top: -140px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #player-hand {
+      bottom: -140px;
+      left: 50%;
+      overflow: hidden;
+      transform: translateX(-50%);
+    }
+
+    .card {
+      width: 100px;
+      height: 170px;
+      background-color: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      overflow: hidden;
+      transition: 0.3s ease;
+    }
+
+    .card:hover{
+      transform: scale(1.1);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 2px;
+    }
+
+    .card-info {
+      font-size: 10px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .player-field,
+    .ia-field {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px;
+    }
+
+    .life-container {
+      position: absolute;
+      width: 200px;
+      height: 20px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border: 3px solid #2b0205;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .life-bar-inner {
+      width: 100%;
+      height: 100%;
+      background-color: red;
+      transition: width 0.5s ease;
+    }
+
+    .life-label {
+      position: absolute;
+      top: -20px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .player-life-container {
+      bottom: 10px;
+      left: 10px;
+    }
+
+    .ia-life-container {
+      top: 10px;
+      right: 10px;
+    }
+
+    .draw-button,
+    .end-turn-button {
+      position: absolute;
+      right: 10px;
+      background-color: #f0c420;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: "Cinzel", serif;
+      color: black;
+      font-size: 18px;
+      transition: 0.3s ease;
+    }
+
+    .draw-button:hover {
+      transform: scale(1.1);
+    }
+
+    .end-turn-button:hover {
+      transform: scale(1.1);
+    }
+
+    .draw-button {
+      top: 45%;
+    }
+
+    .end-turn-button {
+      top: 55%;
+    }
+
+    .discard-pile {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 80px;
+      height: 100px;
+      border: 2px dashed #ccc;
+      background-color: rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Cinzel", serif;
+      color: black;
+      font-size: 14px;
+    }
+
+    #moeda-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f0c420;
+      font-family: "Cinzel", serif;
+      font-size: 32px;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .caixa_moeda {
+      color: rgb(0, 0, 0);
+      font-family: "Cinzel", serif;
+      font-size: 24px;
+      background-color: #f0c420;
+      border-radius: 5px;
+      box-shadow: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      margin-top: 20px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      font-size: "Cinzel", serif;
+      color: #ffffff;
+    }
+
+    .modal-box {
+      background-color: #270f01;
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px #000;
+      width: 90%;
+      max-width: 400px;
+      font-family: "Cinzel", serif;
+    }
+
+    .modal-btn {
+      background-color: #ffd700;
+      color: #000000;
+      font-weight: bold;
+      padding: 12px 24px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      font-family: "Cinzel", serif;
+    }
+
+    .modal-btn:hover {
+      background-color: #ffc400;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .carta-magica {
+      display: inline-block;
+      font-family: 'Cinzel', serif;
+      background-color: transparent;
+      color: white;
+      text-align: center;
+      margin: 10px;
+      width: 120px;
+    }
+
+    .carta-magica img {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .carta-magica p {
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .fonte{
+      font-family: "Cinzel", serif;
+      color: #f0c420;
+      font-size: 12px;
+    }
+
+    .ja-atacou {
+      opacity: 0.6;
+      filter: grayscale(50%);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-board">
+    <div class="life-container ia-life-container">
+      <div class="life-label">IA</div>
+      <div class="life-bar-inner" id="ia-life-bar" style="width: 100%"></div>
+    </div>
+
+    <div class="life-container player-life-container">
+      <div class="life-label">Jogador</div>
+      <div class="life-bar-inner" id="player-life-bar" style="width: 100%"></div>
+    </div>
+
+    <div class="mesa">
+      <div class="field">
+        <div class="ia-field" id="ia-field"></div>
+        <div class="player-field" id="player-field"></div>
+      </div>
+    </div>
+
+    <!-- Modal de Ação -->
+    <div id="modalAcao" class="modal-overlay hidden">
+      <div class="modal-box">
+        <p>Escolha uma ação:</p>
+        <button class="modal-btn" onclick="escolherAcao('modo')">Mudar Modo</button>
+        <button class="modal-btn" onclick="escolherAcao('atacar')">Atacar</button>
+      </div>
+    </div>
+
+    <!-- Modal de Ataque -->
+    <div id="modalAtaque" class="modal-overlay hidden">
+      <div class="modal-box">
+        <p>Digite o índice do monstro da IA a atacar (0 a <span id="maxAlvo"></span>) ou deixe em branco para ataque direto:</p>
+        <input type="number" id="inputAlvo" min="0" />
+        <button class="modal-btn" onclick="confirmarAtaque()">Confirmar Ataque</button>
+      </div>
+    </div>
+
+    <button class="draw-button" onclick="comprarCarta()">Comprar</button>
+    <button class="end-turn-button" onclick="finalizarTurno()">Finalizar Turno</button>
+
+    <div class="discard-pile" id="discard">Descarte</div>
+    <div class="hand ia-hand" id="ia-hand"></div>
+    <div class="hand" id="player-hand"></div>
+  </div>
+
+  <div id="moeda-modal" class="hidden">
+    <p>Jogando moeda para decidir quem começa...</p>
+    <button class="caixa_moeda" onclick="jogarMoeda()">Jogar Moeda</button>
+  </div>
+
+  <div id="end-screen" class="modal-overlay hidden">
+    <div class="modal-box">
+      <p id="end-message" style="font-size: 28px; color: #f0c420;"></p>
+      <button class="modal-btn" onclick="location.reload()">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <audio id="bg-music" loop style="display: none;">
+    <source src="sound/game-jam-2_AyGfwnbR.wav" type="audio/wav">
+  </audio>
+
+  <script>
+    // Definindo as cartas baseadas no arquivo message.txt
+    const cartasMundoDoce = [
+      { id: 'sk001', nome: 'Bolo da Corte', tipo: 'monstro', ataque: 14, defesa: 12, imagem: 'images/Carta_bolo_da_corte.png' },
+      { id: 'sk002', nome: 'Rei Pamonha', tipo: 'monstro', ataque: 18, defesa: 14, imagem: 'images/Carta_Rei_Pamonha.png' },
+      { id: 'sk003', nome: 'Condessa Guaraná', tipo: 'monstro', ataque: 10, defesa: 10, imagem: 'images/Carta_condessa_guarana.png' },
+      { id: 'sk004', nome: 'Rainha Paçoca', tipo: 'monstro', ataque: 16, defesa: 16, imagem: 'images/Carta_Rainha_pacoca.png' },
+      { id: 'sk005', nome: 'Cavalendoim', tipo: 'monstro', ataque: 14, defesa: 10, imagem: 'images/Carta_cavalendoim.png' },
+      { id: 'sk006', nome: 'Valete Condensado', tipo: 'monstro', ataque: 16, defesa: 6, imagem: 'images/Carta_Valete_Condensado.png' },
+      { id: 'sk007', nome: 'Maria Mole', tipo: 'monstro', ataque: 6, defesa: 16, imagem: 'images/Carta_maria_mole.png' },
+      { id: 'sk008', nome: 'Vassaleia', tipo: 'monstro', ataque: 12, defesa: 12, imagem: 'images/Carta_Vassaleia.png' },
+      { id: 'sk009', nome: 'Bisconde', tipo: 'monstro', ataque: 8, defesa: 14, imagem: 'images/Carta_bisconde.png' },
+      { id: 'sk010', nome: 'Visconde Canjica', tipo: 'monstro', ataque: 12, defesa: 10, imagem: 'images/Carta_Visconde_Canjica.png' }
+    ];
+
+    const cartasFolclore = [
+      { id: 'FK001', nome: 'Saci', tipo: 'monstro', ataque: 18, defesa: 14, imagem: 'images/Carta_saci.png' },
+      { id: 'FK002', nome: 'Boitata', tipo: 'monstro', ataque: 16, defesa: 16, imagem: 'images/Carta_boitata.png' },
+      { id: 'FK003', nome: 'Curupira', tipo: 'monstro', ataque: 14, defesa: 10, imagem: 'images/Carta_curupira.png' },
+      { id: 'FK004', nome: 'Caipora', tipo: 'monstro', ataque: 10, defesa: 12, imagem: 'images/Carta_caipora.png' },
+      { id: 'FK005', nome: 'ET de Varginha', tipo: 'monstro', ataque: 10, defesa: 14, imagem: 'images/Carta_et_de_varginha.png' },
+      { id: 'FK006', nome: 'Lobisomem', tipo: 'monstro', ataque: 12, defesa: 10, imagem: 'images/Carta_lobisomen.png' },
+      { id: 'FK007', nome: 'Garantido e Caprichoso', tipo: 'monstro', ataque: 8, defesa: 14, imagem: 'images/Carta_garantido_e_caprichoso.png' },
+      { id: 'FK008', nome: 'Cuca', tipo: 'monstro', ataque: 12, defesa: 14, imagem: 'images/Carta_cuca.png' },
+      { id: 'FK009', nome: 'Mapinguari', tipo: 'monstro', ataque: 16, defesa: 6, imagem: 'images/Carta_mapinguari.png' },
+      { id: 'FK010', nome: 'Mula sem Cabeça', tipo: 'monstro', ataque: 14, defesa: 8, imagem: 'images/Carta_mula_sem_cabeca.png' }
+    ];
+
+    const cartasMagicas = [
+      { 
+        id: 'skm001', 
+        tipo: 'magica', 
+        imagem: 'images/Forcas_Duplicadas_1.png',
+        efeito: function() { 
+          const campo = turno === 'player' ? playerField : iaField;
+          campo.forEach(c => {
+            c.ataque *= 2;
+            c.defesa *= 2;
+          });
+        } 
+      },
+      { 
+        id: 'skm002', 
+        tipo: 'magica', 
+        imagem: 'images/Desarme_Rapido.png',
+        efeito: function() {
+          const campo = turno === 'player' ? iaField : playerField;
+          if (campo.length > 0) {
+            const carta = campo[Math.floor(Math.random() * campo.length)];
+            carta.ataque = Math.max(0, carta.ataque - 2);
+            carta.defesa = Math.max(0, carta.defesa - 2);
+          }
+        } 
+      },
+      { 
+        id: 'skm003', 
+        tipo: 'magica', 
+        imagem: 'images/ESCUDO_1_1.png',
+        efeito: function() {
+          const campo = turno === 'player' ? playerField : iaField;
+          campo.forEach(c => {
+            c.defesa += 2;
+          });
+        } 
+      },
+      { 
+        id: 'skm004', 
+        tipo: 'magica', 
+        imagem: 'images/ESCUDO_2_1.png',
+        efeito: function() {
+          const campo = turno === 'player' ? iaField : playerField;
+          campo.forEach(c => {
+            c.ataque = Math.floor(c.ataque / 2);
+            c.defesa = Math.floor(c.defesa / 2);
+          });
+        } 
+      },
+      { 
+        id: 'skm005', 
+        tipo: 'magica', 
+        imagem: 'images/Volta_a_vida.png',
+        efeito: function() {
+          const deck = turno === 'player' ? playerDeck : iaDeck;
+          const hand = turno === 'player' ? playerHand : iaHand;
+          if (deck.length > 0) {
+            hand.push(deck.pop());
+          }
+        } 
+      },
+      { 
+        id: 'skm006', 
+        tipo: 'magica', 
+        imagem: 'images/Recuperacao_de_magia.png',
+        efeito: function() {
+          const deck = turno === 'player' ? playerDeck : iaDeck;
+          const hand = turno === 'player' ? playerHand : iaHand;
+          if (deck.length > 0) {
+            const magicas = deck.filter(c => c.tipo === 'magica');
+            if (magicas.length > 0) {
+              const carta = magicas[0];
+              hand.push(carta);
+              deck.splice(deck.indexOf(carta), 1);
+            }
+          }
+        } 
+      },
+      { 
+        id: 'skm007', 
+        tipo: 'magica', 
+        imagem: 'images/Uniao_Das_Forcas.png',
+        efeito: function() {
+          const campo = turno === 'player' ? playerField : iaField;
+          if (campo.length >= 2) {
+            const carta1 = campo[0];
+            const carta2 = campo[1];
+            carta1.ataque += carta2.ataque;
+            carta1.defesa += carta2.defesa;
+            campo.splice(1, 1);
+          }
+        } 
+      },
+      { 
+        id: 'skm008', 
+        tipo: 'magica', 
+        imagem: 'images/Banquete_Vitorioso_CERTO.png',
+        efeito: function() {
+          if (turno === 'player') {
+            playerLife = Math.min(50, playerLife + 4);
+          } else {
+            iaLife = Math.min(50, iaLife + 4);
+          }
+          document.getElementById('player-life-bar').style.width = (playerLife / 50 * 100) + '%';
+          document.getElementById('ia-life-bar').style.width = (iaLife / 50 * 100) + '%';
+        } 
+      },
+      { 
+        id: 'skm009', 
+        tipo: 'magica', 
+        imagem: 'images/Bencao_do_lago.png',
+        efeito: function() {
+          const campo = turno === 'player' ? playerField : iaField;
+          campo.forEach(c => {
+            c.ataque += 4;
+            c.defesa += 4;
+          });
+        } 
+      },
+      { 
+        id: 'skm010', 
+        tipo: 'magica', 
+        imagem: 'images/Trespassar_Defesa.png',
+        efeito: function() {
+          const campo = turno === 'player' ? iaField : playerField;
+          campo.forEach(c => {
+            c.ataque = Math.max(0, c.ataque - 4);
+            c.defesa = Math.max(0, c.defesa - 4);
+          });
+        } 
+      }
+    ];
+
+    // Inicializa variáveis globais
+    let playerDeck = [], iaDeck = [], playerHand = [], iaHand = [], playerField = [], iaField = [];
+    let playerLife = 50, iaLife = 50;
+    let turno = '', rodada = 1;
+    let cartaComprada = false, monstroBaixado = false;
+    let acaoIndexTemp = null;
+    let monstrosQueAtacaram = []; // Armazena índices dos monstros que já atacaram
+    let monstrosIAQueAtacaram = []; // Armazena índices dos monstros da IA que já atacaram
+
+    function gerarBaralho(deckEscolhido) {
+      // Determina qual deck o jogador escolheu
+      const selectedDeck = localStorage.getItem('selectedDeck') || 'Reino Doce';
+      
+      // Define os monstros para cada jogador
+      const monstrosJogador = selectedDeck === 'Reino Doce' ? [...cartasMundoDoce] : [...cartasFolclore];
+      const monstrosIA = selectedDeck === 'Reino Doce' ? [...cartasFolclore] : [...cartasMundoDoce];
+      
+      // Combina as cartas - jogador recebe seus monstros + magias, IA recebe seus monstros + magias
+      const baralhoJogador = [...monstrosJogador, ...cartasMagicas].sort(() => Math.random() - 0.5);
+      const baralhoIA = [...monstrosIA, ...cartasMagicas].sort(() => Math.random() - 0.5);
+      
+      return {
+        player: baralhoJogador,
+        ia: baralhoIA
+      };
+    }
+
+    function jogarMoeda() {
+      const modal = document.getElementById('moeda-modal');
+      modal.innerHTML = '';
+      turno = Math.random() < 0.5 ? 'player' : 'ia';
+      const msg = document.createElement('p');
+      msg.textContent = turno === 'player' ? "Você começa!" : "IA começa!";
+      modal.appendChild(msg);
+      setTimeout(() => { modal.style.display = 'none'; iniciarJogo(); }, 2000);
+    }
+
+    function iniciarJogo() {
+        console.log("Iniciando jogo... turno:", turno);
+        
+        // Gera os baralhos
+        const baralhos = gerarBaralho();
+        playerDeck = baralhos.player;
+        iaDeck = baralhos.ia;
+        
+        // Limpa as mãos e campos
+        playerHand = [];
+        iaHand = [];
+        playerField = [];
+        iaField = [];
+        monstrosQueAtacaram = [];
+        monstrosIAQueAtacaram = [];
+        
+        // Reseta variáveis de turno
+        cartaComprada = false;
+        monstroBaixado = false;
+        rodada = 1;
+        
+        // Distribui cartas iniciais
+        for (let i = 0; i < 3; i++) {
+            drawCard('player');
+            drawCard('ia');
+        }
+        
+        // Atualiza a interface
+        atualizarMao();
+        atualizarCampo();
+        
+        // Se for turno da IA, inicia sua jogada
+        if (turno === 'ia') {
+            setTimeout(turnoIA, 1000);
+        }
+    }
+
+    function drawCard(jogador) {
+      if (jogador === 'player') {
+        if (playerDeck.length > 0) {
+          playerHand.push(playerDeck.pop());
+          
+          // Verifica se a mão excedeu 5 cartas
+          if (playerHand.length > 5) {
+            // Remove a última carta adicionada e devolve ao baralho
+            const cartaRemovida = playerHand.pop();
+            playerDeck.unshift(cartaRemovida); // Devolve ao topo do baralho
+            mostrarMensagem("Mão cheia! Uma carta foi devolvida ao baralho.");
+          }
+          
+          atualizarMao();
+        }
+      } else if (jogador === 'ia' && iaDeck.length > 0) {
+        iaHand.push(iaDeck.pop());
+        
+        // Verifica se a mão da IA excedeu 5 cartas
+        if (iaHand.length > 5) {
+          // Remove uma carta aleatória e devolve ao baralho
+          const index = Math.floor(Math.random() * iaHand.length);
+          const cartaRemovida = iaHand.splice(index, 1)[0];
+          iaDeck.unshift(cartaRemovida);
+        }
+      }
+    }
+
+    function comprarCarta() {
+      if (turno !== 'player' || cartaComprada) return;
+      drawCard('player');
+      cartaComprada = true;
+    }
+
+    function atualizarMao() {
+      const mao = document.getElementById('player-hand');
+      mao.innerHTML = '';
+      playerHand.forEach((carta, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-img" style="background-image: url('${carta.imagem}')"></div>
+          <div class="card-info">
+            ${carta.tipo === 'monstro' ? `<div class="fonte">ATK: ${carta.ataque}</div><div class="fonte">DEF: ${carta.defesa}</div>` : '<em class="fonte">Mágica</em>'}
+          </div>
+        `;
+        div.onclick = () => jogarCarta(i);
+        mao.appendChild(div);
+      });
+    }
+
+    function jogarCarta(index) {
+      const carta = playerHand[index];
+      if (carta.tipo === 'monstro') {
+        if (playerField.length < 3 && !monstroBaixado) {
+          playerField.push({ ...carta, modo: 'ataque' });
+          playerHand.splice(index, 1);
+          monstroBaixado = true;
+        }
+      } else {
+        carta.efeito();
+        playerHand.splice(index, 1);
+      }
+      atualizarMao();
+      atualizarCampo();
+    }
+
+    function atualizarCampo() {
+      const campoJogador = document.getElementById('player-field');
+      campoJogador.innerHTML = '';
+      playerField.forEach((carta, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        if (monstrosQueAtacaram.includes(i)) {
+          div.classList.add('ja-atacou');
+        }
+        div.innerHTML = `
+          <div class="card-img" style="background-image: url('${carta.imagem}')"></div>
+          <div class="card-info">
+            <div class="fonte">ATK: ${carta.ataque}</div>
+            <div class="fonte">DEF: ${carta.defesa}</div>
+            <div class="fonte">Modo: ${carta.modo}</div>
+          </div>
+        `;
+        div.onclick = () => menuAcao(i);
+        campoJogador.appendChild(div);
+      });
+
+      const campoIA = document.getElementById('ia-field');
+      campoIA.innerHTML = '';
+      iaField.forEach((carta, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        if (monstrosIAQueAtacaram.includes(i)) {
+          div.classList.add('ja-atacou');
+        }
+        div.innerHTML = `
+          <div class="card-img" style="background-image: url('${carta.imagem}')"></div>
+          <div class="card-info">
+            <div class="fonte">ATK: ${carta.ataque}</div>
+            <div class="fonte">DEF: ${carta.defesa}</div>
+          </div>
+        `;
+        campoIA.appendChild(div);
+      });
+
+      document.getElementById('player-life-bar').style.width = (playerLife / 50 * 100) + '%';
+      document.getElementById('ia-life-bar').style.width = (iaLife / 50 * 100) + '%';
+    }
+    
+    function menuAcao(index) {
+      // Verifica se o monstro já atacou neste turno
+      if (monstrosQueAtacaram.includes(index)) {
+        mostrarMensagem("Este monstro já atacou neste turno!");
+        return;
+      }
+      
+      acaoIndexTemp = index;
+      document.getElementById("modalAcao").classList.remove("hidden");
+    }
+
+    function escolherAcao(acao) {
+      document.getElementById("modalAcao").classList.add("hidden");
+      if (acao === 'modo') {
+        playerField[acaoIndexTemp].modo = playerField[acaoIndexTemp].modo === 'ataque' ? 'defesa' : 'ataque';
+        atualizarCampo();
+      } else if (acao === 'atacar') {
+        if (rodada === 1) {
+          mostrarMensagem("Você não pode atacar no primeiro turno da partida.");
+          return;
+        }
+        document.getElementById("maxAlvo").textContent = iaField.length - 1;
+        document.getElementById("inputAlvo").value = '';
+        document.getElementById("modalAtaque").classList.remove("hidden");
+      }
+    }
+
+    function confirmarAtaque() {
+      const alvo = document.getElementById("inputAlvo").value;
+      document.getElementById("modalAtaque").classList.add("hidden");
+      atacar(acaoIndexTemp, alvo);
+    }
+
+    function atacar(i, alvo) {
+      const atacante = playerField[i];
+      
+      // Verifica se o monstro já atacou neste turno
+      if (monstrosQueAtacaram.includes(i)) {
+        mostrarMensagem("Este monstro já atacou neste turno!");
+        return;
+      }
+
+      // Ataque direto
+      if (alvo === '' || isNaN(alvo)) {
+        if (iaField.length === 0) {
+          iaLife -= atacante.ataque;
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          verificarFimDeJogo();
+          mostrarMensagem(`${atacante.nome} causou ${atacante.ataque} de dano direto à IA!`);
+        } else {
+          mostrarMensagem("Você não pode atacar diretamente enquanto houver monstros no campo do oponente.");
+        }
+        atualizarCampo();
+        return;
+      }
+
+      const defensor = iaField[alvo];
+      if (!defensor) return;
+
+      if (atacante.modo === 'ataque') {
+        if (atacante.ataque > defensor.ataque) {
+          const dano = atacante.ataque - defensor.ataque;
+          iaLife -= dano;
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          verificarFimDeJogo();
+          mostrarMensagem(`${atacante.nome} destruiu ${defensor.nome} e causou ${dano} de dano à IA!`);
+          iaField.splice(alvo, 1);
+        } else if (atacante.ataque < defensor.ataque) {
+          const dano = defensor.ataque - atacante.ataque;
+          playerLife -= dano;
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          verificarFimDeJogo();
+          mostrarMensagem(`${atacante.nome} foi destruído por ${defensor.nome} e você sofreu ${dano} de dano!`);
+          playerField.splice(i, 1);
+        } else {
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          mostrarMensagem(`${atacante.nome} e ${defensor.nome} foram destruídos!`);
+          iaField.splice(alvo, 1);
+          playerField.splice(i, 1);
+        }
+      } else {
+        if (atacante.defesa > defensor.defesa) {
+          const dano = atacante.defesa - defensor.defesa;
+          iaLife -= dano;
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          verificarFimDeJogo();
+          mostrarMensagem(`${atacante.nome} destruiu ${defensor.nome} e causou ${dano} de dano à IA!`);
+          iaField.splice(alvo, 1);
+        } else if (atacante.defesa < defensor.defesa) {
+          const dano = defensor.defesa - atacante.defesa;
+          playerLife -= dano;
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          verificarFimDeJogo();
+          mostrarMensagem(`${atacante.nome} foi destruído por ${defensor.nome} e você sofreu ${dano} de dano!`);
+          playerField.splice(i, 1);
+        } else {
+          monstrosQueAtacaram.push(i); // Marca que o monstro atacou
+          mostrarMensagem(`${atacante.nome} e ${defensor.nome} foram destruídos!`);
+          iaField.splice(alvo, 1);
+          playerField.splice(i, 1);
+        }
+      }
+
+      atualizarCampo();
+    }
+
+    function mostrarMensagem(mensagem) {
+      alert(mensagem);
+    }
+
+    function finalizarTurno() {
+      if (turno !== 'player') return;
+      turno = 'ia';
+      cartaComprada = false;
+      monstroBaixado = false;
+      monstrosQueAtacaram = []; // Reseta os monstros que atacaram
+      turnoIA();
+    }
+
+    function turnoIA() {
+      cartaComprada = true;
+      if (iaDeck.length > 0) drawCard('ia');
+      setTimeout(() => {
+        // IA usa cartas mágicas
+        for (let i = iaHand.length - 1; i >= 0; i--) {
+          if (iaHand[i].tipo === 'magica') {
+            iaHand[i].efeito();
+            iaHand.splice(i, 1);
+          }
+        }
+        
+        // IA baixa monstros
+        for (let i = iaHand.length - 1; i >= 0; i--) {
+          if (iaHand[i].tipo === 'monstro' && iaField.length < 3) {
+            iaField.push({ ...iaHand[i], modo: 'ataque' });
+            iaHand.splice(i, 1);
+            break;
+          }
+        }
+        
+        atualizarCampo();
+        setTimeout(() => {
+          batalhaIA();
+        }, 1000);
+      }, 1000);
+    }
+
+    function batalhaIA() {
+      if (rodada === 1) {
+        turno = 'player';
+        cartaComprada = false;
+        monstroBaixado = false;
+        monstrosIAQueAtacaram = []; // Reseta os monstros da IA que atacaram
+        rodada++;
+        return;
+      }
+
+      for (let i = 0; i < iaField.length; i++) {
+        // Verifica se o monstro da IA já atacou neste turno
+        if (monstrosIAQueAtacaram.includes(i)) {
+          continue;
+        }
+
+        const atacante = iaField[i];
+
+        if (playerField.length === 0) {
+          // Ataque direto
+          playerLife -= atacante.ataque;
+          monstrosIAQueAtacaram.push(i); // Marca que o monstro atacou
+          verificarFimDeJogo();
+          mostrarMensagem(`${atacante.nome} causou ${atacante.ataque} de dano direto ao jogador!`);
+          continue;
+        }
+
+        // Escolhe um monstro aleatório do jogador para atacar
+        const defensorIndex = Math.floor(Math.random() * playerField.length);
+        const defensor = playerField[defensorIndex];
+
+        // Verifica se o defensor está em modo de ataque ou defesa
+        if (defensor.modo === 'ataque') {
+          if (atacante.ataque > defensor.ataque) {
+            const dano = atacante.ataque - defensor.ataque;
+            playerLife -= dano;
+            monstrosIAQueAtacaram.push(i);
+            verificarFimDeJogo();
+            mostrarMensagem(`${atacante.nome} destruiu ${defensor.nome} e causou ${dano} de dano!`);
+            playerField.splice(defensorIndex, 1);
+          } else if (atacante.ataque < defensor.ataque) {
+            const dano = defensor.ataque - atacante.ataque;
+            iaLife -= dano;
+            monstrosIAQueAtacaram.push(i);
+            verificarFimDeJogo();
+            mostrarMensagem(`${atacante.nome} foi destruído por ${defensor.nome} e a IA sofreu ${dano} de dano!`);
+            iaField.splice(i, 1);
+            i--;
+          } else {
+            monstrosIAQueAtacaram.push(i);
+            mostrarMensagem(`${atacante.nome} e ${defensor.nome} foram destruídos!`);
+            iaField.splice(i, 1);
+            playerField.splice(defensorIndex, 1);
+            i--;
+          }
+        } else { // Modo defesa
+          if (atacante.ataque > defensor.defesa) {
+            const dano = atacante.ataque - defensor.defesa;
+            playerLife -= dano;
+            monstrosIAQueAtacaram.push(i);
+            verificarFimDeJogo();
+            mostrarMensagem(`${atacante.nome} superou a defesa de ${defensor.nome} e causou ${dano} de dano!`);
+            playerField.splice(defensorIndex, 1);
+          } else if (atacante.ataque < defensor.defesa) {
+            const dano = defensor.defesa - atacante.ataque;
+            iaLife -= dano;
+            monstrosIAQueAtacaram.push(i);
+            verificarFimDeJogo();
+            mostrarMensagem(`${atacante.nome} não conseguiu superar a defesa de ${defensor.nome} e a IA sofreu ${dano} de dano!`);
+            iaField.splice(i, 1);
+            i--;
+          } else {
+            monstrosIAQueAtacaram.push(i);
+            mostrarMensagem(`${atacante.nome} e ${defensor.nome} se anularam!`);
+            iaField.splice(i, 1);
+            playerField.splice(defensorIndex, 1);
+            i--;
+          }
+        }
+      }
+
+      atualizarCampo();
+      setTimeout(() => {
+        turno = 'player';
+        cartaComprada = false;
+        monstroBaixado = false;
+        monstrosIAQueAtacaram = []; // Reseta os monstros da IA que atacaram
+        rodada++;
+      }, 1000);
+    }
+
+    function verificarFimDeJogo() {
+      if (playerLife <= 0) {
+        exibirFimDeJogo("Você perdeu!");
+      } else if (iaLife <= 0) {
+        exibirFimDeJogo("Você venceu!");
+      }
+    }
+
+    function exibirFimDeJogo(mensagem) {
+      const telaFinal = document.getElementById('end-screen');
+      document.getElementById('end-message').textContent = mensagem;
+      telaFinal.classList.remove('hidden');
+    }
+
+    // Tenta tocar a música quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+      const music = document.getElementById('bg-music');
+      music.volume = 0.5;
+      
+      music.play().catch(e => {
+        document.addEventListener('click', function() {
+          music.play();
+        }, { once: true });
+      });
+
+      // Mostra o modal da moeda quando a página carrega
+      document.getElementById('moeda-modal').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
